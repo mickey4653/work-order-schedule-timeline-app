@@ -1,5 +1,8 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { WorkCenterDocument, WorkOrderDocument, GridCellClickEvent } from '../../../core/models';
+import { TimelineService } from '../../../core/services/timeline.service';
+import { TimelineRowComponent } from '../timeline-row/timeline-row.component';
 
 /**
  * TimelineGridComponent
@@ -13,22 +16,49 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-timeline-grid',
   standalone: true,
-  imports: [CommonModule],
-  template: `<div class="timeline-grid"></div>`,
+  imports: [CommonModule, TimelineRowComponent],
+  template: `
+    <div class="timeline-grid" [style.width.px]="totalWidth">
+      <app-timeline-row
+        *ngFor="let center of workCenters; trackBy: trackByWorkCenter"
+        [workCenter]="center"
+        [workOrders]="getWorkOrdersForCenter(center.docId)"
+        [visibleStartDate]="visibleStartDate"
+        [columnWidth]="columnWidth"
+        (cellClicked)="onCellClicked($event)">
+      </app-timeline-row>
+    </div>
+  `,
   styles: [`
     .timeline-grid {
-      // Scrollable grid area styles
+      position: relative;
+      min-height: 100%;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineGridComponent {
-  // @Input() workCenters: WorkCenter[] = [];
-  // @Input() workOrders: WorkOrder[] = [];
-  // @Input() dateRange: DateRange | null = null;
-  // @Input() columnWidth: number = 100;
-  
-  // @Output() scrollChanged = new EventEmitter<ScrollPosition>();
-  // @Output() workOrderClicked = new EventEmitter<WorkOrder>();
-  // @Output() gridCellClicked = new EventEmitter<GridCellClick>();
+  @Input() workCenters: WorkCenterDocument[] = [];
+  @Input() workOrders: WorkOrderDocument[] = [];
+  @Input() visibleStartDate: Date | null = null;
+  @Input() columnWidth: number = 80;
+  @Input() totalColumns: number = 60;
+
+  @Output() cellClicked = new EventEmitter<GridCellClickEvent>();
+
+  get totalWidth(): number {
+    return this.totalColumns * this.columnWidth;
+  }
+
+  trackByWorkCenter(index: number, center: WorkCenterDocument): string {
+    return center.docId;
+  }
+
+  getWorkOrdersForCenter(workCenterId: string): WorkOrderDocument[] {
+    return this.workOrders.filter(order => order.data.workCenterId === workCenterId);
+  }
+
+  onCellClicked(event: GridCellClickEvent): void {
+    this.cellClicked.emit(event);
+  }
 }

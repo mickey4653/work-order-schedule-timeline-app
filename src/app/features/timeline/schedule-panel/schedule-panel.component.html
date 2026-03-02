@@ -1,0 +1,89 @@
+<div class="schedule-panel-backdrop" *ngIf="isOpen" (click)="onBackdropClick()"></div>
+
+<div class="schedule-panel" [class.schedule-panel--open]="isOpen">
+  <div class="schedule-panel__header">
+    <h2>Create Work Order</h2>
+    <button class="close-button" (click)="onCancel()" type="button">×</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="schedule-panel__form">
+    <div class="form-group">
+      <label for="name">Work Order Name *</label>
+      <input 
+        id="name"
+        type="text" 
+        formControlName="name"
+        class="form-control"
+        placeholder="Enter work order name">
+      <div class="error-message" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+        Work order name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="workCenter">Work Center *</label>
+      <select 
+        id="workCenter"
+        formControlName="workCenterId"
+        class="form-control">
+        <option value="">Select work center</option>
+        <option *ngFor="let center of workCenters" [value]="center.docId">
+          {{ center.data.name }}
+        </option>
+      </select>
+      <div class="error-message" *ngIf="form.get('workCenterId')?.invalid && form.get('workCenterId')?.touched">
+        Work center is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="status">Status *</label>
+      <select 
+        id="status"
+        formControlName="status"
+        class="form-control">
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="complete">Complete</option>
+        <option value="blocked">Blocked</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="startDate">Start Date *</label>
+      <input 
+        id="startDate"
+        type="date" 
+        formControlName="startDate"
+        class="form-control">
+      <div class="error-message" *ngIf="form.get('startDate')?.invalid && form.get('startDate')?.touched">
+        Start date is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="endDate">End Date *</label>
+      <input 
+        id="endDate"
+        type="date" 
+        formControlName="endDate"
+        class="form-control">
+      <div class="error-message" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">
+        End date is required and must be after start date
+      </div>
+    </div>
+
+    <div class="error-message error-message--overlap" *ngIf="overlapError">
+      {{ overlapError }}
+    </div>
+
+    <div class="schedule-panel__actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
+        {{ isSaving ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </form>
+</div>

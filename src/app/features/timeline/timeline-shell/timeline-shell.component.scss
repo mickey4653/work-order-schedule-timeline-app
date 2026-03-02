@@ -1,3 +1,122 @@
 .timeline-shell {
-  // Orchestration container styles
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "Circular-Std", sans-serif;
+}
+
+.timeline-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+// Left fixed panel
+.work-centers-panel {
+  width: 200px;
+  flex-shrink: 0;
+  border-right: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+.work-centers-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-weight: 500;
+  font-size: 14px;
+  border-bottom: 1px solid #e8e8e8;
+  background: #fff;
+  color: #333;
+}
+
+.work-centers-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.work-center-row {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+  color: #555;
+  font-weight: 400;
+}
+
+// Right scrollable panel
+.timeline-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-header {
+  height: 60px;
+  border-bottom: 1px solid #e8e8e8;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.date-columns {
+  position: relative;
+  height: 100%;
+  min-width: min-content;
+}
+
+.date-column {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #f0f0f0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timeline-grid-container {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+  background: #fafafa;
+}
+
+.timeline-rows {
+  position: relative;
+}
+
+.timeline-row {
+  height: 60px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+
+// Current day indicator
+.current-day-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ff6b6b;
+  z-index: 5;
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(255, 107, 107, 0.3);
 }

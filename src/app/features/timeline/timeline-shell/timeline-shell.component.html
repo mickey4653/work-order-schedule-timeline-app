@@ -1,3 +1,57 @@
 <div class="timeline-shell">
-  <!-- Timeline orchestration container -->
+  <div class="timeline-layout">
+    <!-- Left fixed panel for work center names -->
+    <div class="work-centers-panel">
+      <div class="work-centers-header">Work Center</div>
+      <div class="work-centers-list">
+        <div 
+          class="work-center-row" 
+          *ngFor="let center of workCenters$ | async">
+          {{ center.data.name }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right scrollable timeline grid -->
+    <div class="timeline-panel">
+      <!-- Sticky header row for dates -->
+      <div class="timeline-header">
+        <div class="date-columns" [style.width.px]="totalWidth$ | async">
+          <div 
+            class="date-column"
+            *ngFor="let column of dateColumns$ | async"
+            [style.left.px]="column.position"
+            [style.width.px]="columnWidth$ | async">
+            {{ column.label }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable grid area -->
+      <div class="timeline-grid-container">
+        <app-timeline-grid
+          [workCenters]="(workCenters$ | async) || []"
+          [workOrders]="(workOrders$ | async) || []"
+          [visibleStartDate]="(visibleStartDate$ | async) || null"
+          [columnWidth]="(columnWidth$ | async) || 80"
+          [totalColumns]="60"
+          (cellClicked)="onGridCellClicked($event)">
+        </app-timeline-grid>
+
+        <!-- Current day indicator line -->
+        <div 
+          class="current-day-indicator"
+          [style.left.px]="currentDayPosition$ | async">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Panel -->
+  <app-schedule-panel
+    [isOpen]="isPanelOpen"
+    [workCenters]="(workCenters$ | async) || []"
+    (saved)="onScheduleSaved($event)"
+    (cancelled)="onScheduleCancelled()">
+  </app-schedule-panel>
 </div>
