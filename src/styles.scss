@@ -12,3 +12,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+// Custom ng-bootstrap tooltip styling
+::ng-deep .custom-tooltip .tooltip-inner {
+  padding: 8px 12px;
+  background-color: rgba(104, 113, 150, 1) !important;
+  box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1);
+  color: rgba(249, 250, 255, 1) !important;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 8px;
+  font-family: "Circular-Std-Book", sans-serif;
+}
+
+::ng-deep .custom-tooltip .arrow::before {
+  border-top-color: rgba(104, 113, 150, 1) !important;
+}

@@ -1,1 +1,1 @@
-export type ZoomLevel = 'day' | 'week' | 'month';
+export type ZoomLevel = 'hour' | 'day' | 'week' | 'month';

@@ -2,13 +2,23 @@
 
 <div class="schedule-panel" [class.schedule-panel--open]="isOpen">
   <div class="schedule-panel__header">
-    <h2>Create Work Order</h2>
-    <button class="close-button" (click)="onCancel()" type="button">×</button>
+    <div>
+      <h2>{{ panelTitle }}</h2>
+      <p class="schedule-panel__subtitle">Specify the dates, name status for this order</p>
+    </div>
+    <div class="schedule-panel__actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving" (click)="onSubmit()">
+        {{ isSaving ? (isEditMode ? 'Updating...' : 'Creating...') : submitButtonText }}
+      </button>
+    </div>
   </div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="schedule-panel__form">
+  <form [formGroup]="form" class="schedule-panel__form">
     <div class="form-group">
-      <label for="name">Work Order Name *</label>
+      <label for="name">Work Order Name</label>
       <input 
         id="name"
         type="text" 
@@ -21,53 +31,48 @@
     </div>
 
     <div class="form-group">
-      <label for="workCenter">Work Center *</label>
-      <select 
-        id="workCenter"
-        formControlName="workCenterId"
-        class="form-control">
-        <option value="">Select work center</option>
-        <option *ngFor="let center of workCenters" [value]="center.docId">
-          {{ center.data.name }}
-        </option>
-      </select>
-      <div class="error-message" *ngIf="form.get('workCenterId')?.invalid && form.get('workCenterId')?.touched">
-        Work center is required
+      <label for="status">Status</label>
+      <div class="custom-status-dropdown" [class.open]="isStatusDropdownOpen">
+        <div class="status-dropdown-trigger" (mousedown)="toggleStatusDropdown($event)">
+          <div class="status-badge" [class]="'status-badge--' + form.get('status')?.value">
+            {{ getStatusLabel(form.get('status')?.value) }}
+          </div>
+          <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.3904343 0.48804301L7.350122 4.1876526C7.5226269 4.4032836 7.4876661 4.7179298 7.2720351 4.8904343C7.1833787 4.9613595 7.0732231 5 6.9596877 5L1.0403124 5C0.76417005 5 0.54031241 4.7761426 0.54031241 4.5C0.54031241 4.3864641 0.57895279 4.276309 0.64987803 4.1876526L3.6095655 0.48804301C3.7820704 0.27241203 4.0967164 0.23745134 4.3123474 0.40995613C4.3411798 0.43302199 4.3673687 0.45921066 4.3904343 0.48804301Z" fill="#687196" fill-rule="evenodd" transform="matrix(-1 -8.74228e-08 8.74228e-08 -1 8 5)"/>
+          </svg>
+        </div>
+        <div class="status-dropdown-menu" *ngIf="isStatusDropdownOpen">
+          <div class="status-dropdown-option" 
+               *ngFor="let option of statusOptions"
+               [class.selected]="option.value === form.get('status')?.value"
+               (click)="selectStatus($event, option.value)">
+            {{ option.label }}
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="status">Status *</label>
-      <select 
-        id="status"
-        formControlName="status"
-        class="form-control">
-        <option value="open">Open</option>
-        <option value="in-progress">In Progress</option>
-        <option value="complete">Complete</option>
-        <option value="blocked">Blocked</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="startDate">Start Date *</label>
+      <label for="startDate">Start Date</label>
       <input 
         id="startDate"
         type="date" 
         formControlName="startDate"
-        class="form-control">
+        class="form-control"
+        placeholder="YYYY-MM-DD">
       <div class="error-message" *ngIf="form.get('startDate')?.invalid && form.get('startDate')?.touched">
         Start date is required
       </div>
     </div>
 
     <div class="form-group">
-      <label for="endDate">End Date *</label>
+      <label for="endDate">End Date</label>
       <input 
         id="endDate"
         type="date" 
         formControlName="endDate"
-        class="form-control">
+        class="form-control"
+        placeholder="YYYY-MM-DD">
       <div class="error-message" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">
         End date is required and must be after start date
       </div>
@@ -75,15 +80,6 @@
 
     <div class="error-message error-message--overlap" *ngIf="overlapError">
       {{ overlapError }}
-    </div>
-
-    <div class="schedule-panel__actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
-        Cancel
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
-        {{ isSaving ? 'Saving...' : 'Save' }}
-      </button>
     </div>
   </form>
 </div>

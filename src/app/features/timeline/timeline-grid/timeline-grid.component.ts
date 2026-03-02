@@ -25,7 +25,9 @@ import { TimelineRowComponent } from '../timeline-row/timeline-row.component';
         [workOrders]="getWorkOrdersForCenter(center.docId)"
         [visibleStartDate]="visibleStartDate"
         [columnWidth]="columnWidth"
-        (cellClicked)="onCellClicked($event)">
+        (cellClicked)="onCellClicked($event)"
+        (workOrderEdit)="onWorkOrderEdit($event)"
+        (workOrderDelete)="onWorkOrderDelete($event)">
       </app-timeline-row>
     </div>
   `,
@@ -45,6 +47,8 @@ export class TimelineGridComponent {
   @Input() totalColumns: number = 60;
 
   @Output() cellClicked = new EventEmitter<GridCellClickEvent>();
+  @Output() workOrderEdit = new EventEmitter<WorkOrderDocument>();
+  @Output() workOrderDelete = new EventEmitter<WorkOrderDocument>();
 
   get totalWidth(): number {
     return this.totalColumns * this.columnWidth;
@@ -60,5 +64,13 @@ export class TimelineGridComponent {
 
   onCellClicked(event: GridCellClickEvent): void {
     this.cellClicked.emit(event);
+  }
+
+  onWorkOrderEdit(workOrder: WorkOrderDocument): void {
+    this.workOrderEdit.emit(workOrder);
+  }
+
+  onWorkOrderDelete(workOrder: WorkOrderDocument): void {
+    this.workOrderDelete.emit(workOrder);
   }
 }

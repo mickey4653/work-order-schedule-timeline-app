@@ -25,6 +25,7 @@ export class SchedulePanelComponent implements OnInit {
   @Input() isOpen: boolean = false;
   @Input() workCenters: WorkCenterDocument[] = [];
   @Input() initialData: Partial<ScheduleFormData> | null = null;
+  @Input() editingWorkOrderId: string | null = null; // Track if editing
   
   @Output() saved = new EventEmitter<ScheduleFormData>();
   @Output() cancelled = new EventEmitter<void>();
@@ -33,6 +34,26 @@ export class SchedulePanelComponent implements OnInit {
   form!: FormGroup;
   overlapError: string | null = null;
   isSaving: boolean = false;
+  isStatusDropdownOpen: boolean = false;
+
+  readonly statusOptions = [
+    { value: 'open', label: 'Open' },
+    { value: 'in-progress', label: 'In Progress' },
+    { value: 'complete', label: 'Complete' },
+    { value: 'blocked', label: 'Blocked' }
+  ];
+
+  get isEditMode(): boolean {
+    return !!this.editingWorkOrderId;
+  }
+
+  get panelTitle(): string {
+    return this.isEditMode ? 'Edit Work Order' : 'Work Order Details';
+  }
+
+  get submitButtonText(): string {
+    return this.isEditMode ? 'Update' : 'Create';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -74,7 +95,8 @@ export class SchedulePanelComponent implements OnInit {
     return end > start ? null : { dateRange: true };
   }
 
-  setInitialData(data: Partial<ScheduleFormData>): void {
+  setInitialData(data: Partial<ScheduleFormData>, workOrderId?: string): void {
+    this.editingWorkOrderId = workOrderId || null;
     this.form.patchValue(data);
     this.overlapError = null;
     this.cdr.markForCheck();
@@ -103,6 +125,7 @@ export class SchedulePanelComponent implements OnInit {
     });
     this.overlapError = null;
     this.isSaving = false;
+    this.editingWorkOrderId = null;
     this.cancelled.emit();
   }
 
@@ -113,5 +136,65 @@ export class SchedulePanelComponent implements OnInit {
   resetSaving(): void {
     this.isSaving = false;
     this.cdr.markForCheck();
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      'open': 'Open',
+      'in-progress': 'In Progress',
+      'complete': 'Complete',
+      'blocked': 'Blocked'
+    };
+    return labels[status] || status;
+  }
+
+  toggleStatusDropdown(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isStatusDropdownOpen = !this.isStatusDropdownOpen;
+    
+    if (this.isStatusDropdownOpen) {
+      setTimeout(() => {
+        this.attachStatusClickOutsideListener();
+      }, 100);
+    } else {
+      this.removeStatusClickOutsideListener();
+    }
+    
+    this.cdr.markForCheck();
+  }
+
+  selectStatus(event: Event, status: string): void {
+    event.stopPropagation();
+    this.form.patchValue({ status });
+    this.isStatusDropdownOpen = false;
+    this.removeStatusClickOutsideListener();
+    this.cdr.markForCheck();
+  }
+
+  private statusClickOutsideHandler: ((event: MouseEvent) => void) | null = null;
+
+  private attachStatusClickOutsideListener(): void {
+    if (this.statusClickOutsideHandler) {
+      document.removeEventListener('click', this.statusClickOutsideHandler);
+    }
+    
+    this.statusClickOutsideHandler = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-status-dropdown')) {
+        this.isStatusDropdownOpen = false;
+        this.cdr.markForCheck();
+        this.removeStatusClickOutsideListener();
+      }
+    };
+    
+    document.addEventListener('click', this.statusClickOutsideHandler);
+  }
+
+  private removeStatusClickOutsideListener(): void {
+    if (this.statusClickOutsideHandler) {
+      document.removeEventListener('click', this.statusClickOutsideHandler);
+      this.statusClickOutsideHandler = null;
+    }
   }
 }

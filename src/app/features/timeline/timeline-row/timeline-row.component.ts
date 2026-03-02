@@ -26,6 +26,7 @@ interface PositionedWorkOrder {
   template: `
     <div class="timeline-row" 
          [class.timeline-row--hover]="isHovered"
+         title="Click to add dates"
          (mouseenter)="isHovered = true"
          (mouseleave)="isHovered = false"
          (click)="onRowClick($event)">
@@ -33,21 +34,41 @@ interface PositionedWorkOrder {
         *ngFor="let positioned of positionedWorkOrders; trackBy: trackByWorkOrder"
         [workOrder]="positioned.workOrder"
         [left]="positioned.left"
-        [width]="positioned.width">
+        [width]="positioned.width"
+        (edit)="onWorkOrderEdit($event)"
+        (delete)="onWorkOrderDelete($event)">
       </app-timeline-bar>
     </div>
   `,
   styles: [`
     .timeline-row {
       height: 60px;
-      border-bottom: 1px solid #e0e0e0;
       position: relative;
       transition: background-color 0.2s ease;
       cursor: pointer;
     }
 
     .timeline-row--hover {
-      background-color: #f0f0f0;
+     background-color: rgba(238, 240, 255, 1);
+    }
+
+    /* Custom tooltip styling */
+    .custom-tooltip {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 8px 12px;
+      background-color: rgba(104, 113, 150, 1);
+      box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1);
+      color: rgba(249, 250, 255, 1);
+      font-weight: 400;
+      font-size: 14px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1000;
+      font-family: "Circular-Std-Book", sans-serif;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -62,6 +83,8 @@ export class TimelineRowComponent {
   }
 
   @Output() cellClicked = new EventEmitter<GridCellClickEvent>();
+  @Output() workOrderEdit = new EventEmitter<WorkOrderDocument>();
+  @Output() workOrderDelete = new EventEmitter<WorkOrderDocument>();
 
   positionedWorkOrders: PositionedWorkOrder[] = [];
   isHovered = false;
@@ -70,6 +93,14 @@ export class TimelineRowComponent {
 
   trackByWorkOrder(index: number, positioned: PositionedWorkOrder): string {
     return positioned.workOrder.docId;
+  }
+
+  onWorkOrderEdit(workOrder: WorkOrderDocument): void {
+    this.workOrderEdit.emit(workOrder);
+  }
+
+  onWorkOrderDelete(workOrder: WorkOrderDocument): void {
+    this.workOrderDelete.emit(workOrder);
   }
 
   onRowClick(event: MouseEvent): void {
