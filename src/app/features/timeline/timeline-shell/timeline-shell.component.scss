@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
+  gap: 0;
   position: relative;
   z-index: 100;
 }
@@ -24,13 +24,14 @@
   width: 80px;
   display: block;
   object-fit: contain;
+  margin-bottom: 65px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: 500;
   color: rgba(3, 9, 41, 1);
-  margin: 0;
+  margin: 0 0 26px 0;
 }
 
 .header-bottom {
@@ -46,13 +47,13 @@
 }
 
 .zoom-label {
-  font-size: 16px;
+  font-size: 13px;
   color: rgba(104, 113, 150, 1);
-  font-weight: 450;
+  font-weight: 400;
   margin: 0;
   border-radius: 5px 0 0 5px;
   background-color: rgba(241, 243, 248, 0.75);
-  padding: 12px 20px;
+  padding: 12px 10px;
 }
 
 .custom-dropdown {
@@ -95,7 +96,7 @@
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  left: -110px;
   width: 200px;
   min-height: 136px;
   box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 
@@ -305,4 +306,113 @@
   z-index: 6;
   pointer-events: none;
   margin-top: 4px;
+}
+
+
+// ng-select zoom dropdown styling
+.zoom-dropdown.ng-select {
+  min-width: auto !important;
+  max-width: fit-content !important;
+  border: none;
+  
+  .ng-select-container {
+    background: #fff !important;
+    border: none !important;
+    border-radius: 0 5px 5px 0 !important;
+    min-height: auto !important;
+    padding: 12px 10px !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: fit-content !important;
+    
+    .ng-value-container {
+      padding: 0 !important;
+      flex: 0 1 auto !important;
+      
+      .ng-value {
+        font-size: 13px !important;
+        font-family: "Circular-Std", sans-serif !important;
+        color: rgba(86, 89, 255, 1) !important;
+        font-weight: 500 !important;
+      }
+      
+      .ng-input {
+        display: none !important;
+      }
+    }
+    
+    .ng-arrow-wrapper {
+      padding-right: 0 !important;
+      width: 9px !important;
+      height: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      
+      .ng-arrow {
+        // Hide the default CSS arrow
+        border: none !important;
+        width: 9px !important;
+        height: 6px !important;
+        
+        // Add your custom SVG as background
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="9" height="6"><path fill="%235659FF" transform="matrix(1.19249e-08 -1 1 1.19249e-08 0 5)" d="M1.8564357 4.2863026C1.8564357 4.4239287 1.8977972 4.5583787 1.9751537 4.6722069L2.0297029 4.7524753L2.0297029 4.7524753L4.6055169 7.3499351C4.8099632 7.5560989 4.8092675 7.8887525 4.6039605 8.094059C4.3989043 8.2991152 4.0664425 8.2991152 3.8613861 8.094059L0.35355338 4.5862265C0.15829125 4.3909645 0.15829125 4.0743818 0.35355338 3.8791199L3.8551474 0.37752596C4.0646429 0.16803056 4.4034357 0.16525376 4.6163368 0.37128714L4.6163368 0.37128714L4.6163368 0.37128714C4.8247828 0.57300931 4.8302341 0.90551656 4.6285114 1.1139628C4.6265159 1.1160251 4.6245031 1.118071 4.6224742 1.1201003L2.0297029 3.7128713L2.0297029 3.7128713L1.9475787 3.8845534C1.887579 4.0099835 1.8564357 4.1472602 1.8564357 4.2863026Z" fill-rule="evenodd"/></svg>') !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: contain !important;
+      }
+    }
+  }
+  
+  &.ng-select-opened .ng-select-container .ng-arrow {
+    transform: rotate(180deg) !important;
+  }
+  
+  &.ng-select-focused .ng-select-container {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .ng-dropdown-panel {
+    width: 200px !important;
+    box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 
+                0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 
+                0 4.5px 5px -1px rgba(216, 220, 235, 1) !important;
+    border-radius: 5px !important;
+    background-color: rgba(255, 255, 255, 1) !important;
+    border: none !important;
+    margin-top: 8px !important;
+    left: -90px;
+    .ng-dropdown-panel-items {
+      overflow-y: visible !important;
+      
+      .ng-option {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        font-family: "Circular-Std-Book", sans-serif !important;
+        color: rgba(52, 64, 84, 1) !important;
+        font-weight: 400 !important;
+        background: #fff !important;
+        min-height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+        cursor: pointer !important;
+        transition: background-color 0.15s ease !important;
+        
+        &:hover,
+        &.ng-option-marked {
+          background-color: rgba(241, 243, 248, 0.5) !important;
+        }
+        
+        &.ng-option-selected {
+          color: rgba(62, 64, 219, 1) !important;
+          font-family: "Circular-Std-Book", sans-serif !important;
+          font-size: 14px !important;
+          font-weight: 400 !important;
+          background-color: rgba(241, 243, 248, 0.75) !important;
+        }
+      }
+    }
+  }
 }

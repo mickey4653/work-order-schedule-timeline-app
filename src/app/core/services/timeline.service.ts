@@ -14,13 +14,11 @@ import { ZoomLevel } from '../models/zoom-level.type';
 })
 export class TimelineService {
   // Timeline configuration constants
-  private readonly HOUR_COLUMN_WIDTH = 60;
   private readonly DAY_COLUMN_WIDTH = 80;
   private readonly WEEK_COLUMN_WIDTH = 120;
   private readonly MONTH_COLUMN_WIDTH = 160;
 
   // Range buffer configurations
-  private readonly HOUR_BUFFER_HOURS = 24;
   private readonly DAY_BUFFER_DAYS = 14;
   private readonly WEEK_BUFFER_WEEKS = 8;
   private readonly MONTH_BUFFER_MONTHS = 6;
@@ -109,7 +107,6 @@ export class TimelineService {
 
   private updateColumnWidth(level: ZoomLevel): void {
     const widthMap: Record<ZoomLevel, number> = {
-      hour: this.HOUR_COLUMN_WIDTH,
       day: this.DAY_COLUMN_WIDTH,
       week: this.WEEK_COLUMN_WIDTH,
       month: this.MONTH_COLUMN_WIDTH
@@ -127,9 +124,6 @@ export class TimelineService {
     const date = new Date(centerDate);
     
     switch (level) {
-      case 'hour':
-        date.setHours(date.getHours() - this.HOUR_BUFFER_HOURS);
-        break;
       case 'day':
         date.setDate(date.getDate() - this.DAY_BUFFER_DAYS);
         break;

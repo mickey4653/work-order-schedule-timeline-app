@@ -28,3 +28,119 @@ body {
 ::ng-deep .custom-tooltip .arrow::before {
   border-top-color: rgba(104, 113, 150, 1) !important;
 }
+
+/* Calendar button styling */
+::ng-deep .calendar-btn {
+  border: 1px solid #e0e0e0;
+  border-left: none;
+  background: #fff;
+  padding: 8px 12px;
+  cursor: pointer;
+  
+  &:hover {
+    background: #f8f8f8;
+  }
+  
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+}
+
+::ng-deep .input-group {
+  display: flex;
+  position: relative;
+  
+  .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    flex: 1;
+  }
+  
+  .calendar-btn {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+}
+
+/* ngb-datepicker custom styling */
+::ng-deep .ngb-dp-header {
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px;
+}
+
+::ng-deep .ngb-dp-months {
+  background: #fff;
+}
+
+::ng-deep .ngb-dp-month {
+  pointer-events: auto;
+}
+
+::ng-deep .ngb-dp-week {
+  border-radius: 0;
+  padding: 0;
+}
+
+::ng-deep .ngb-dp-weekdays {
+  border-bottom: 1px solid #e8e8e8;
+  background: #fafafa;
+}
+
+::ng-deep .ngb-dp-weekday {
+  color: rgba(104, 113, 150, 1);
+  font-weight: 500;
+  font-size: 12px;
+  font-style: normal;
+  padding: 8px 4px;
+}
+
+::ng-deep .ngb-dp-day {
+  .btn-light {
+    color: rgba(52, 64, 84, 1);
+    border: none;
+    background: transparent;
+    
+    &:hover {
+      background: rgba(241, 243, 248, 0.5);
+    }
+    
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+  
+  &.selected .btn-light,
+  &.selected .btn-light:hover {
+    background: rgba(86, 89, 255, 1);
+    color: #fff;
+  }
+  
+  &.disabled .btn-light {
+    color: #ccc;
+    cursor: not-allowed;
+  }
+}
+
+::ng-deep .ngb-dp-navigation-select {
+  select {
+    padding: 4px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: rgba(86, 89, 255, 1);
+    }
+  }
+}
+
+::ng-deep ngb-datepicker {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: "Circular-Std", sans-serif;
+}

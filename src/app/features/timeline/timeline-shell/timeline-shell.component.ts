@@ -1,5 +1,7 @@
-import { Component, ChangeDetectionStrategy, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, ViewChild, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule } from '@angular/forms';
 import { ScheduleService } from '../../../core/services/schedule.service';
 import { TimelineService } from '../../../core/services/timeline.service';
 import { ValidationService } from '../../../core/services/validation.service';
@@ -26,10 +28,11 @@ interface DateColumn {
 @Component({
   selector: 'app-timeline-shell',
   standalone: true,
-  imports: [CommonModule, TimelineGridComponent, SchedulePanelComponent],
+  imports: [CommonModule, NgSelectModule, FormsModule, TimelineGridComponent, SchedulePanelComponent],
   templateUrl: './timeline-shell.component.html',
   styleUrl: './timeline-shell.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class TimelineShellComponent implements OnInit, OnDestroy {
   @ViewChild(SchedulePanelComponent) schedulePanel!: SchedulePanelComponent;
@@ -44,7 +47,7 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
   currentZoomLevel$!: Observable<ZoomLevel>;
 
   isPanelOpen = false;
-  isDropdownOpen = false;
+  selectedZoomLevel: ZoomLevel = 'day';
   private workCentersCache: WorkCenterDocument[] = [];
   private workOrdersCache: WorkOrderDocument[] = [];
   private editingWorkOrderId: string | null = null;
@@ -52,7 +55,6 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
   private readonly totalColumns = 60;
   
   readonly zoomLevels = [
-    { value: 'hour' as ZoomLevel, label: 'Hour' },
     { value: 'day' as ZoomLevel, label: 'Day' },
     { value: 'week' as ZoomLevel, label: 'Week' },
     { value: 'month' as ZoomLevel, label: 'Month' }
@@ -71,6 +73,12 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
     this.columnWidth$ = this.timelineService.getColumnWidth();
     this.visibleStartDate$ = this.timelineService.getVisibleStartDate();
     this.currentZoomLevel$ = this.timelineService.getZoomLevel();
+    
+    // Set initial selected zoom level
+    this.currentZoomLevel$.subscribe(level => {
+      this.selectedZoomLevel = level;
+      this.cdr.markForCheck();
+    });
     
     // Cache data for synchronous access
     this.workCenters$.subscribe(centers => this.workCentersCache = centers);
@@ -98,75 +106,12 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.clickOutsideHandler) {
-      document.removeEventListener('click', this.clickOutsideHandler);
-    }
+    // Cleanup if needed
   }
 
-  onZoomLevelChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const zoomLevel = select.value as ZoomLevel;
-    this.timelineService.setZoomLevel(zoomLevel);
-  }
-
-  toggleDropdownWithStop(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDropdownOpen = !this.isDropdownOpen;
-    
-    // Delay attaching click-outside listener to prevent immediate closure
-    if (this.isDropdownOpen) {
-      setTimeout(() => {
-        this.attachClickOutsideListener();
-      }, 100);
-    } else {
-      // Remove listener when closing
-      if (this.clickOutsideHandler) {
-        document.removeEventListener('click', this.clickOutsideHandler);
-        this.clickOutsideHandler = null;
-      }
-    }
-    
-    this.cdr.markForCheck();
-  }
-
-  private clickOutsideHandler: ((event: MouseEvent) => void) | null = null;
-
-  private attachClickOutsideListener(): void {
-    if (this.clickOutsideHandler) {
-      document.removeEventListener('click', this.clickOutsideHandler);
-    }
-    
-    this.clickOutsideHandler = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.custom-dropdown')) {
-        this.isDropdownOpen = false;
-        this.cdr.markForCheck();
-        if (this.clickOutsideHandler) {
-          document.removeEventListener('click', this.clickOutsideHandler);
-          this.clickOutsideHandler = null;
-        }
-      }
-    };
-    
-    document.addEventListener('click', this.clickOutsideHandler);
-  }
-
-  selectZoomLevel(level: ZoomLevel): void {
+  onZoomLevelChange(level: ZoomLevel): void {
+    this.selectedZoomLevel = level;
     this.timelineService.setZoomLevel(level);
-    this.isDropdownOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  selectZoomLevelWithStop(event: Event, level: ZoomLevel): void {
-    event.stopPropagation();
-    this.selectZoomLevel(level);
-  }
-
-  getZoomLevelLabel(level: ZoomLevel | null): string {
-    if (!level) return 'Day';
-    const found = this.zoomLevels.find(z => z.value === level);
-    return found ? found.label : 'Day';
   }
 
   onGridCellClicked(event: GridCellClickEvent): void {

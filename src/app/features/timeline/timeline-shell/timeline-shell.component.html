@@ -7,25 +7,20 @@
     <!-- Title -->
     <h1 class="page-title">Work Orders</h1>
     
-    <!-- Timescale Label + Custom Dropdown -->
+    <!-- Timescale Label + ng-select Dropdown -->
     <div class="header-bottom">
       <label class="zoom-label">Timescale</label>
-      <div class="custom-dropdown" [class.open]="isDropdownOpen">
-        <div class="dropdown-trigger" (mousedown)="toggleDropdownWithStop($event)">
-          <span class="selected-value">{{ getZoomLevelLabel(currentZoomLevel$ | async) }}</span>
-          <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1.5L6 6.5L11 1.5" stroke="#5659ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="dropdown-menu" *ngIf="isDropdownOpen">
-          <div class="dropdown-option" 
-               *ngFor="let level of zoomLevels"
-               [class.selected]="level.value === (currentZoomLevel$ | async)"
-               (click)="selectZoomLevelWithStop($event, level.value)">
-            {{ level.label }}
-          </div>
-        </div>
-      </div>
+      <ng-select
+        [items]="zoomLevels"
+        bindLabel="label"
+        bindValue="value"
+        [(ngModel)]="selectedZoomLevel"
+        (ngModelChange)="onZoomLevelChange($any($event))"
+        [clearable]="false"
+        [searchable]="false"
+        [dropdownPosition]="'bottom'"
+        class="zoom-dropdown">
+      </ng-select>
     </div>
   </div>
 

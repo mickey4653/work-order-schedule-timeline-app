@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { WorkCenterDocument, ScheduleFormData } from '../../../core/models';
 
 /**
@@ -16,10 +18,11 @@ import { WorkCenterDocument, ScheduleFormData } from '../../../core/models';
 @Component({
   selector: 'app-schedule-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule],
   templateUrl: './schedule-panel.component.html',
   styleUrls: ['./schedule-panel.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class SchedulePanelComponent implements OnInit {
   @Input() isOpen: boolean = false;
@@ -42,6 +45,31 @@ export class SchedulePanelComponent implements OnInit {
     { value: 'complete', label: 'Complete' },
     { value: 'blocked', label: 'Blocked' }
   ];
+
+  /**
+   * Convert ISO date string (YYYY-MM-DD) to NgbDateStruct
+   */
+  private isoToNgbDate(isoDate: string): NgbDateStruct | null {
+    if (!isoDate) return null;
+    const parts = isoDate.split('-');
+    if (parts.length !== 3) return null;
+    return {
+      year: parseInt(parts[0], 10),
+      month: parseInt(parts[1], 10),
+      day: parseInt(parts[2], 10)
+    };
+  }
+
+  /**
+   * Convert NgbDateStruct to ISO date string (YYYY-MM-DD)
+   */
+  private ngbDateToIso(date: NgbDateStruct | null): string {
+    if (!date) return '';
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0');
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   get isEditMode(): boolean {
     return !!this.editingWorkOrderId;
@@ -97,7 +125,15 @@ export class SchedulePanelComponent implements OnInit {
 
   setInitialData(data: Partial<ScheduleFormData>, workOrderId?: string): void {
     this.editingWorkOrderId = workOrderId || null;
-    this.form.patchValue(data);
+    
+    // Convert ISO dates to NgbDateStruct for datepicker
+    const formData = {
+      ...data,
+      startDate: data.startDate ? this.isoToNgbDate(data.startDate) : null,
+      endDate: data.endDate ? this.isoToNgbDate(data.endDate) : null
+    };
+    
+    this.form.patchValue(formData);
     this.overlapError = null;
     this.cdr.markForCheck();
   }
@@ -116,7 +152,18 @@ export class SchedulePanelComponent implements OnInit {
 
     this.isSaving = true;
     this.overlapError = null;
-    this.saved.emit(this.form.value);
+    
+    // Convert NgbDateStruct to ISO format
+    const formValue = this.form.value;
+    const formData: ScheduleFormData = {
+      name: formValue.name,
+      workCenterId: formValue.workCenterId,
+      status: formValue.status,
+      startDate: this.ngbDateToIso(formValue.startDate),
+      endDate: this.ngbDateToIso(formValue.endDate)
+    };
+    
+    this.saved.emit(formData);
   }
 
   onCancel(): void {
@@ -146,55 +193,5 @@ export class SchedulePanelComponent implements OnInit {
       'blocked': 'Blocked'
     };
     return labels[status] || status;
-  }
-
-  toggleStatusDropdown(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isStatusDropdownOpen = !this.isStatusDropdownOpen;
-    
-    if (this.isStatusDropdownOpen) {
-      setTimeout(() => {
-        this.attachStatusClickOutsideListener();
-      }, 100);
-    } else {
-      this.removeStatusClickOutsideListener();
-    }
-    
-    this.cdr.markForCheck();
-  }
-
-  selectStatus(event: Event, status: string): void {
-    event.stopPropagation();
-    this.form.patchValue({ status });
-    this.isStatusDropdownOpen = false;
-    this.removeStatusClickOutsideListener();
-    this.cdr.markForCheck();
-  }
-
-  private statusClickOutsideHandler: ((event: MouseEvent) => void) | null = null;
-
-  private attachStatusClickOutsideListener(): void {
-    if (this.statusClickOutsideHandler) {
-      document.removeEventListener('click', this.statusClickOutsideHandler);
-    }
-    
-    this.statusClickOutsideHandler = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.custom-status-dropdown')) {
-        this.isStatusDropdownOpen = false;
-        this.cdr.markForCheck();
-        this.removeStatusClickOutsideListener();
-      }
-    };
-    
-    document.addEventListener('click', this.statusClickOutsideHandler);
-  }
-
-  private removeStatusClickOutsideListener(): void {
-    if (this.statusClickOutsideHandler) {
-      document.removeEventListener('click', this.statusClickOutsideHandler);
-      this.statusClickOutsideHandler = null;
-    }
   }
 }

@@ -120,29 +120,9 @@
     color: #aaa;
   }
 
-  // Hide calendar icon for date inputs but keep functionality
-  &[type="date"] {
-    position: relative;
+  // Make date inputs clickable
+  &[ngbDatepicker] {
     cursor: pointer;
-    
-    &::-webkit-calendar-picker-indicator {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: auto;
-      height: auto;
-      color: transparent;
-      background: transparent;
-      cursor: pointer;
-    }
-    
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
   }
 }
 
@@ -347,5 +327,85 @@ select.form-control {
   }
   to {
     opacity: 1;
+  }
+}
+
+
+// ng-select status dropdown styling
+.status-select.ng-select {
+  .ng-select-container {
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    min-height: 48px !important;
+    background: #fff !important;
+    
+    .ng-value-container {
+      padding: 12px 14px !important;
+      
+      .ng-input {
+        display: none !important;
+      }
+    }
+    
+    .ng-arrow-wrapper {
+      padding-right: 14px !important;
+      
+      .ng-arrow {
+        border-color: #687196 transparent transparent !important;
+        border-style: solid !important;
+        border-width: 5px 4px 0 !important;
+      }
+    }
+  }
+  
+  &.ng-select-opened .ng-select-container .ng-arrow {
+    transform: rotate(180deg) !important;
+  }
+  
+  &.ng-select-focused .ng-select-container {
+    border-color: #4a90e2 !important;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1) !important;
+  }
+  
+  .ng-dropdown-panel {
+    width: 543px !important;
+    box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 
+                0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 
+                0 4.5px 5px -1px rgba(216, 220, 235, 1) !important;
+    border-radius: 5px !important;
+    background-color: rgba(255, 255, 255, 1) !important;
+    border: none !important;
+    margin-top: 8px !important;
+    
+    .ng-dropdown-panel-items {
+      overflow-y: visible !important;
+      
+      .ng-option {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        font-family: "Circular-Std-Book", sans-serif !important;
+        color: rgba(52, 64, 84, 1) !important;
+        font-weight: 400 !important;
+        background: #fff !important;
+        min-height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+        cursor: pointer !important;
+        transition: background-color 0.15s ease !important;
+        
+        &:hover,
+        &.ng-option-marked {
+          background-color: rgba(241, 243, 248, 0.5) !important;
+        }
+        
+        &.ng-option-selected {
+          color: rgba(62, 64, 219, 1) !important;
+          font-family: "Circular-Std-Book", sans-serif !important;
+          font-size: 14px !important;
+          font-weight: 400 !important;
+          background-color: rgba(241, 243, 248, 0.75) !important;
+        }
+      }
+    }
   }
 }
