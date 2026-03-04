@@ -6,6 +6,65 @@
   font-family: "Circular-Std", sans-serif;
 }
 
+// Mobile responsiveness: allow page scroll on smaller screens
+@media (max-width: 768px) {
+  .timeline-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .timeline-header-section {
+    min-width: 100vw;
+  }
+  
+  .timeline-layout {
+    flex: 1;
+    min-height: 500px;
+    overflow-x: visible;
+    overflow-y: visible;
+    min-width: fit-content;
+    display: flex;
+  }
+  
+  .work-centers-panel {
+    width: 120px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  
+  .work-centers-header {
+    font-size: 11px;
+  }
+  
+  .work-center-row {
+    width: 120px;
+    font-size: 11px;
+    padding: 0 8px;
+  }
+  
+  .timeline-panel {
+    overflow-x: auto;
+    overflow-y: visible;
+    flex: 1;
+    min-width: calc(100vw - 120px);
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .timeline-grid-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .timeline-header {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 // Top Header Section
 .timeline-header-section {
   background: #fff;

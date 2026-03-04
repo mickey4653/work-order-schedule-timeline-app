@@ -3,3 +3,13 @@
   height: 100vh;
   overflow: hidden;
 }
+
+// Mobile: allow page to scroll
+@media (max-width: 768px) {
+  .app-container {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    min-width: 100vw;
+  }
+}

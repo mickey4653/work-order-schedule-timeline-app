@@ -25,6 +25,23 @@
   font-family: "Circular-Std", sans-serif;
 }
 
+// Mobile responsiveness: full width on small screens
+@media (max-width: 768px) {
+  .schedule-panel {
+    right: -100%;
+    width: 100%;
+    border-radius: 0;
+  }
+  
+  .status-dropdown-menu {
+    width: calc(100% - 48px) !important;
+  }
+  
+  .status-select.ng-select .ng-dropdown-panel {
+    width: calc(100% - 48px) !important;
+  }
+}
+
 .schedule-panel--open {
   right: 0;
 }

@@ -13,7 +13,7 @@ An interactive timeline component for managing work orders across multiple work 
 - **Vertical Grid Lines**: Clean visual separation for date columns
 - **Current Day Indicator**: Visual marker showing today's date on the timeline (zoom-aware positioning)
 - **Current Month Badge**: Prominent badge overlay that appears above work orders at current month position
-- **Responsive Design**: Horizontal scrolling for timeline, fixed left panel for work centers
+- **Mobile Responsive**: Optimized for mobile devices with horizontal scrolling timeline and adaptive panel widths
 - **Work Order Tooltips**: Hover over work order bars to see detailed information with custom styling (name, status, date range)
 - **"Today" Button**: Quick navigation to scroll timeline and center on current day (works across all zoom levels)
 - **Infinite Horizontal Scroll**: Timeline dynamically loads 30 more date columns as you scroll near the end
@@ -151,6 +151,16 @@ A comprehensive testing guide is available in `docs/TESTING_GUIDE.md` covering:
 - Edit and delete operations
 - Overlap detection scenarios
 - Form validation
+
+## Mobile Support
+
+The application is fully functional on mobile devices (screens ≤768px):
+- Timeline scrolls horizontally within its container for full date range access
+- Work centers panel reduced to 120px width for space efficiency
+- Schedule panel expands to full width for better form usability
+- Touch scrolling enabled for smooth iOS experience
+- Vertical page scrolling enabled for content that exceeds viewport height
+- Side-by-side layout maintained with both panels visible
 
 ## Future Enhancements
 
