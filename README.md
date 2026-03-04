@@ -5,14 +5,17 @@ An interactive timeline component for managing work orders across multiple work 
 ## Features
 
 - **Interactive Timeline Grid**: Visualize work orders across multiple work centers with horizontal scrolling
-- **Multiple Zoom Levels**: Switch between Day, Week, and Month views
-- **Click-to-Create**: Click on empty timeline areas to create new work orders
+- **Multiple Zoom Levels**: Switch between Day, Week, and Month views with intelligent column scaling
+- **Click-to-Create**: Click on empty timeline areas to create new work orders with "Click to add dates" tooltip
 - **Edit & Delete**: Manage existing work orders via three-dot action menu
 - **Overlap Detection**: Prevents scheduling conflicts on the same work center
 - **Status Management**: Track work orders with 4 status types (Open, In Progress, Complete, Blocked)
 - **Vertical Grid Lines**: Clean visual separation for date columns
-- **Current Day Indicator**: Visual marker showing today's date on the timeline
+- **Current Day Indicator**: Visual marker showing today's date on the timeline (zoom-aware positioning)
 - **Responsive Design**: Horizontal scrolling for timeline, fixed left panel for work centers
+- **Work Order Tooltips**: Hover over work order bars to see detailed information (name, status, date range)
+- **"Today" Button**: Quick navigation to scroll timeline and center on current day (works across all zoom levels)
+- **Infinite Horizontal Scroll**: Timeline dynamically loads more date columns as you scroll
 
 ## Tech Stack
 
@@ -22,12 +25,19 @@ An interactive timeline component for managing work orders across multiple work 
 - **Reactive Forms** for form management
 - **RxJS** for reactive state management
 - **HttpClient** for data loading
+- **@ng-select/ng-select** for custom dropdowns
+- **@ng-bootstrap/ng-bootstrap** (ngb-datepicker, ngb-tooltip) for date picking and tooltips
 
 ### Implementation Notes
 
-- **Dropdowns**: Custom dropdown components were implemented to achieve pixel-perfect design matching while maintaining the functionality specified in requirements
-- **Date Inputs**: Native HTML5 date picker (`type="date"`) provides built-in calendar functionality and excellent mobile support
+- **Dropdowns**: ng-select library used for timescale and status dropdowns with custom styling to match design specifications
+- **Date Inputs**: ngb-datepicker from ng-bootstrap provides calendar functionality with custom styling
+- **Tooltips**: ngb-tooltip displays "Click to add dates" on empty cells and work order details (name, status, dates) on work order bars
+- **Zoom Levels**: Day view shows individual days, Week view shows 7-day periods, Month view shows monthly periods with intelligent column scaling
+- **Position Calculations**: All timeline positioning is zoom-aware, ensuring accurate placement of work orders and current day indicator across all zoom levels
 - **Change Detection**: OnPush strategy used throughout for optimal performance
+- **Infinite Scroll**: Timeline dynamically expands by 30 columns when scrolling near the end
+- **Navigation**: "Today" button centers the timeline on the current day with zoom-aware positioning
 
 ## Project Structure
 

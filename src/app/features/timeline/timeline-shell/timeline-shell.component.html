@@ -8,19 +8,28 @@
     <h1 class="page-title">Work Orders</h1>
     
     <!-- Timescale Label + ng-select Dropdown -->
-    <div class="header-bottom">
-      <label class="zoom-label">Timescale</label>
-      <ng-select
-        [items]="zoomLevels"
-        bindLabel="label"
-        bindValue="value"
-        [(ngModel)]="selectedZoomLevel"
-        (ngModelChange)="onZoomLevelChange($any($event))"
-        [clearable]="false"
-        [searchable]="false"
-        [dropdownPosition]="'bottom'"
-        class="zoom-dropdown">
-      </ng-select>
+    <div class="header-controls">
+      <div class="header-bottom">
+        <label class="zoom-label">Timescale</label>
+        <ng-select
+          [items]="zoomLevels"
+          bindLabel="label"
+          bindValue="value"
+          [(ngModel)]="selectedZoomLevel"
+          (ngModelChange)="onZoomLevelChange($any($event))"
+          [clearable]="false"
+          [searchable]="false"
+          [dropdownPosition]="'bottom'"
+          class="zoom-dropdown">
+        </ng-select>
+      </div>
+      
+      <!-- Today Button -->
+      <button class="today-btn" 
+              (click)="scrollToToday()" 
+              type="button">
+        Today
+      </button>
     </div>
   </div>
 
@@ -40,7 +49,7 @@
     <!-- Right scrollable timeline grid -->
     <div class="timeline-panel">
       <!-- Sticky header row for dates -->
-      <div class="timeline-header">
+      <div class="timeline-header" #timelineHeader>
         <div class="date-columns" [style.width.px]="totalWidth$ | async">
           <div 
             class="date-column"
@@ -53,7 +62,7 @@
       </div>
 
       <!-- Scrollable grid area -->
-      <div class="timeline-grid-container">
+      <div class="timeline-grid-container" #timelineScrollContainer (scroll)="onTimelineScroll($event)">
         <!-- Vertical grid lines -->
         <div class="vertical-grid-lines" [style.width.px]="totalWidth$ | async">
           <div 
@@ -68,6 +77,7 @@
           [workOrders]="(workOrders$ | async) || []"
           [visibleStartDate]="(visibleStartDate$ | async) || null"
           [columnWidth]="(columnWidth$ | async) || 80"
+          [zoomLevel]="selectedZoomLevel"
           [totalColumns]="60"
           (cellClicked)="onGridCellClicked($event)"
           (workOrderEdit)="onWorkOrderEdit($event)"

@@ -13,20 +13,66 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Custom ng-bootstrap tooltip styling
-::ng-deep .custom-tooltip .tooltip-inner {
-  padding: 8px 12px;
+// Custom ng-bootstrap tooltip styling - using multiple selector approaches
+.tooltip .tooltip-inner,
+.work-order-tooltip .tooltip-inner,
+.add-dates-tooltip .tooltip-inner {
+  padding: 8px 12px !important;
   background-color: rgba(104, 113, 150, 1) !important;
-  box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1);
+  box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1) !important;
   color: rgba(249, 250, 255, 1) !important;
-  font-weight: 400;
-  font-size: 14px;
-  border-radius: 8px;
-  font-family: "Circular-Std-Book", sans-serif;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  font-family: "Circular-Std-Book", sans-serif !important;
+  white-space: pre-line !important;
+  text-align: left !important;
+  max-width: 300px !important;
+  border: none !important;
 }
 
-::ng-deep .custom-tooltip .arrow::before {
+// Work order tooltips should appear above other tooltips
+.work-order-tooltip {
+  z-index: 9999 !important;
+}
+
+.add-dates-tooltip {
+  z-index: 9998 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.work-order-tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.add-dates-tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+  border-bottom-color: rgba(104, 113, 150, 1) !important;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before,
+.work-order-tooltip.bs-tooltip-top .tooltip-arrow::before,
+.add-dates-tooltip.bs-tooltip-top .tooltip-arrow::before {
   border-top-color: rgba(104, 113, 150, 1) !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before,
+.work-order-tooltip.bs-tooltip-start .tooltip-arrow::before,
+.add-dates-tooltip.bs-tooltip-start .tooltip-arrow::before {
+  border-left-color: rgba(104, 113, 150, 1) !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before,
+.work-order-tooltip.bs-tooltip-end .tooltip-arrow::before,
+.add-dates-tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: rgba(104, 113, 150, 1) !important;
+}
+
+// Ensure tooltip window itself is visible
+ngb-tooltip-window.add-dates-tooltip,
+ngb-tooltip-window.work-order-tooltip {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* Calendar button styling */

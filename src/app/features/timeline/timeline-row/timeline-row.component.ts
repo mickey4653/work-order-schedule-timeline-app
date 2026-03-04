@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkCenterDocument, WorkOrderDocument, GridCellClickEvent } from '../../../core/models';
 import { TimelineService } from '../../../core/services/timeline.service';
 import { TimelineBarComponent } from '../timeline-bar/timeline-bar.component';
@@ -22,14 +23,16 @@ interface PositionedWorkOrder {
 @Component({
   selector: 'app-timeline-row',
   standalone: true,
-  imports: [CommonModule, TimelineBarComponent],
+  imports: [CommonModule, NgbTooltipModule, TimelineBarComponent],
   template: `
     <div class="timeline-row" 
          [class.timeline-row--hover]="isHovered"
-         title="Click to add dates"
-         (mouseenter)="isHovered = true"
-         (mouseleave)="isHovered = false"
-         (click)="onRowClick($event)">
+         (mouseenter)="onMouseEnter($event)"
+         (mouseleave)="onMouseLeave($event)">
+      <div class="timeline-row-background"
+           (click)="onRowClick($event)"
+           title="Click to add dates">
+      </div>
       <app-timeline-bar
         *ngFor="let positioned of positionedWorkOrders; trackBy: trackByWorkOrder"
         [workOrder]="positioned.workOrder"
@@ -45,30 +48,21 @@ interface PositionedWorkOrder {
       height: 60px;
       position: relative;
       transition: background-color 0.2s ease;
-      cursor: pointer;
     }
 
     .timeline-row--hover {
      background-color: rgba(238, 240, 255, 1);
     }
 
-    /* Custom tooltip styling */
-    .custom-tooltip {
+    .timeline-row-background {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 8px 12px;
-      background-color: rgba(104, 113, 150, 1);
-      box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1);
-      color: rgba(249, 250, 255, 1);
-      font-weight: 400;
-      font-size: 14px;
-      border-radius: 8px;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 1000;
-      font-family: "Circular-Std-Book", sans-serif;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 0;
+      pointer-events: all;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -77,6 +71,7 @@ export class TimelineRowComponent {
   @Input() workCenter: WorkCenterDocument | null = null;
   @Input() columnWidth: number = 80;
   @Input() visibleStartDate: Date | null = null;
+  @Input() zoomLevel: 'day' | 'week' | 'month' = 'day';
 
   @Input() set workOrders(orders: WorkOrderDocument[]) {
     this.positionedWorkOrders = this.calculatePositions(orders);
@@ -89,10 +84,20 @@ export class TimelineRowComponent {
   positionedWorkOrders: PositionedWorkOrder[] = [];
   isHovered = false;
 
-  constructor(private timelineService: TimelineService) {}
+  constructor(
+    private timelineService: TimelineService
+  ) {}
 
   trackByWorkOrder(index: number, positioned: PositionedWorkOrder): string {
     return positioned.workOrder.docId;
+  }
+
+  onMouseEnter(event: MouseEvent): void {
+    this.isHovered = true;
+  }
+
+  onMouseLeave(event: MouseEvent): void {
+    this.isHovered = false;
   }
 
   onWorkOrderEdit(workOrder: WorkOrderDocument): void {
@@ -121,7 +126,8 @@ export class TimelineRowComponent {
     const clickedDate = this.timelineService.positionToDate(
       clickPosition,
       this.visibleStartDate,
-      this.columnWidth
+      this.columnWidth,
+      this.zoomLevel
     );
 
     this.cellClicked.emit({
@@ -143,17 +149,26 @@ export class TimelineRowComponent {
       const left = this.timelineService.dateToPosition(
         startDate,
         this.visibleStartDate!,
-        this.columnWidth
+        this.columnWidth,
+        this.zoomLevel
       );
 
       const calculatedWidth = this.timelineService.calculateBarWidth(
         startDate,
         endDate,
-        this.columnWidth
+        this.columnWidth,
+        this.zoomLevel
       );
 
-      // Ensure minimum width for visibility
-      const width = Math.max(calculatedWidth, 40);
+      // Set minimum width based on zoom level to keep bars readable
+      let minWidth = 40;
+      if (this.zoomLevel === 'week') {
+        minWidth = 80;  // Larger minimum for week view
+      } else if (this.zoomLevel === 'month') {
+        minWidth = 120; // Even larger minimum for month view
+      }
+
+      const width = Math.max(calculatedWidth, minWidth);
 
       return { workOrder: order, left, width };
     });

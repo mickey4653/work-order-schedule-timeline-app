@@ -53,39 +53,79 @@ export class TimelineService {
   }
 
   /**
-   * Pure calculation: Convert date to pixel position
-   * Formula: differenceInDays(date, visibleStartDate) × columnWidth
+   * Pure calculation: Convert date to pixel position (zoom-aware)
+   * In day view: each day = columnWidth
+   * In week view: each week = columnWidth, so each day = columnWidth/7
+   * In month view: each month = columnWidth, so each day = columnWidth/30
    */
-  dateToPosition(date: Date, visibleStartDate: Date, columnWidth: number): number {
+  dateToPosition(date: Date, visibleStartDate: Date, columnWidth: number, zoomLevel?: ZoomLevel): number {
+    const currentZoomLevel = zoomLevel || this.zoomLevel$.value;
     const daysDifference = this.differenceInDays(date, visibleStartDate);
-    return daysDifference * columnWidth;
+    
+    switch (currentZoomLevel) {
+      case 'day':
+        return daysDifference * columnWidth;
+      case 'week':
+        return (daysDifference / 7) * columnWidth;
+      case 'month':
+        // Approximate: 30 days per month
+        return (daysDifference / 30) * columnWidth;
+      default:
+        return daysDifference * columnWidth;
+    }
   }
 
   /**
-   * Pure calculation: Calculate bar width based on date range
-   * Formula: differenceInDays(endDate, startDate) × columnWidth
+   * Pure calculation: Calculate bar width based on date range (zoom-aware)
    */
-  calculateBarWidth(startDate: Date, endDate: Date, columnWidth: number): number {
+  calculateBarWidth(startDate: Date, endDate: Date, columnWidth: number, zoomLevel?: ZoomLevel): number {
+    const currentZoomLevel = zoomLevel || this.zoomLevel$.value;
     const daysDifference = this.differenceInDays(endDate, startDate);
-    return daysDifference * columnWidth;
+    
+    switch (currentZoomLevel) {
+      case 'day':
+        return daysDifference * columnWidth;
+      case 'week':
+        return (daysDifference / 7) * columnWidth;
+      case 'month':
+        // Approximate: 30 days per month
+        return (daysDifference / 30) * columnWidth;
+      default:
+        return daysDifference * columnWidth;
+    }
   }
 
   /**
-   * Calculate date from pixel position
+   * Calculate date from pixel position (zoom-aware)
    */
-  positionToDate(position: number, visibleStartDate: Date, columnWidth: number): Date {
-    const dayOffset = Math.floor(position / columnWidth);
+  positionToDate(position: number, visibleStartDate: Date, columnWidth: number, zoomLevel?: ZoomLevel): Date {
+    const currentZoomLevel = zoomLevel || this.zoomLevel$.value;
     const date = new Date(visibleStartDate);
-    date.setDate(date.getDate() + dayOffset);
+    
+    switch (currentZoomLevel) {
+      case 'day':
+        const dayOffset = Math.floor(position / columnWidth);
+        date.setDate(date.getDate() + dayOffset);
+        break;
+      case 'week':
+        const weekOffset = Math.floor(position / columnWidth);
+        date.setDate(date.getDate() + (weekOffset * 7));
+        break;
+      case 'month':
+        const monthOffset = Math.floor(position / columnWidth);
+        date.setMonth(date.getMonth() + monthOffset);
+        break;
+    }
+    
     return date;
   }
 
   /**
-   * Calculate current day indicator position
+   * Calculate current day indicator position (zoom-aware)
    */
-  getCurrentDayPosition(visibleStartDate: Date, columnWidth: number): number {
+  getCurrentDayPosition(visibleStartDate: Date, columnWidth: number, zoomLevel?: ZoomLevel): number {
     const today = new Date();
-    return this.dateToPosition(today, visibleStartDate, columnWidth);
+    return this.dateToPosition(today, visibleStartDate, columnWidth, zoomLevel);
   }
 
   /**

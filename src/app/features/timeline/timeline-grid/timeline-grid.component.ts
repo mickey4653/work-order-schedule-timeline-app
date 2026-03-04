@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkCenterDocument, WorkOrderDocument, GridCellClickEvent } from '../../../core/models';
-import { TimelineService } from '../../../core/services/timeline.service';
 import { TimelineRowComponent } from '../timeline-row/timeline-row.component';
 
 /**
@@ -18,13 +18,15 @@ import { TimelineRowComponent } from '../timeline-row/timeline-row.component';
   standalone: true,
   imports: [CommonModule, TimelineRowComponent],
   template: `
-    <div class="timeline-grid" [style.width.px]="totalWidth">
+    <div class="timeline-grid" 
+         [style.width.px]="totalWidth">
       <app-timeline-row
         *ngFor="let center of workCenters; trackBy: trackByWorkCenter"
         [workCenter]="center"
         [workOrders]="getWorkOrdersForCenter(center.docId)"
         [visibleStartDate]="visibleStartDate"
         [columnWidth]="columnWidth"
+        [zoomLevel]="zoomLevel"
         (cellClicked)="onCellClicked($event)"
         (workOrderEdit)="onWorkOrderEdit($event)"
         (workOrderDelete)="onWorkOrderDelete($event)">
@@ -45,6 +47,7 @@ export class TimelineGridComponent {
   @Input() visibleStartDate: Date | null = null;
   @Input() columnWidth: number = 80;
   @Input() totalColumns: number = 60;
+  @Input() zoomLevel: 'day' | 'week' | 'month' = 'day';
 
   @Output() cellClicked = new EventEmitter<GridCellClickEvent>();
   @Output() workOrderEdit = new EventEmitter<WorkOrderDocument>();

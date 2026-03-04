@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderDocument } from '../../../core/models';
 
 /**
@@ -14,12 +15,16 @@ import { WorkOrderDocument } from '../../../core/models';
 @Component({
   selector: 'app-timeline-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgbTooltipModule],
   template: `
     <div class="timeline-bar"
          [class]="'timeline-bar--' + workOrder.data.status"
          [style.left.px]="left"
-         [style.width.px]="width">
+         [style.width.px]="width"
+         [ngbTooltip]="tooltipContent"
+         tooltipClass="work-order-tooltip"
+         placement="bottom"
+         container="body">
       <div class="timeline-bar__content">
         <span class="timeline-bar__name">{{ workOrder.data.name }}</span>
         <span class="timeline-bar__status" [class]="'timeline-bar__status--' + workOrder.data.status">
@@ -56,12 +61,14 @@ import { WorkOrderDocument } from '../../../core/models';
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: visible;
       font-family: "Circular-Std-Book", sans-serif;
+      z-index: 10;
+      pointer-events: all;
     }
 
     .timeline-bar:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 2;
+      z-index: 20;
     }
 
     .timeline-bar__content {
@@ -122,7 +129,7 @@ import { WorkOrderDocument } from '../../../core/models';
 
     .timeline-bar__menu {
       position: absolute;
-      right: 0;
+      right: -170px;
       top: 100%;
       margin-top: 4px;
       background-color: rgba(255, 255, 255, 1);
@@ -243,10 +250,25 @@ export class TimelineBarComponent {
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
       'open': 'Open',
-      'in-progress': 'In progress',
+      'in-progress': 'In Progress',
       'complete': 'Complete',
       'blocked': 'Blocked'
     };
     return labels[status] || status;
+  }
+
+  get tooltipContent(): string {
+    const startDate = new Date(this.workOrder.data.startDate).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    const endDate = new Date(this.workOrder.data.endDate).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    
+    return `${this.workOrder.data.name}\nStatus: ${this.getStatusLabel(this.workOrder.data.status)}\n${startDate} - ${endDate}`;
   }
 }

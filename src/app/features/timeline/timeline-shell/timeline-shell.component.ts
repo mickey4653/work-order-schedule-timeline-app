@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, OnInit, ViewChild, OnDestroy, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, ViewChild, OnDestroy, ChangeDetectorRef, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { ScheduleService } from '../../../core/services/schedule.service';
 import { TimelineService } from '../../../core/services/timeline.service';
@@ -28,7 +29,7 @@ interface DateColumn {
 @Component({
   selector: 'app-timeline-shell',
   standalone: true,
-  imports: [CommonModule, NgSelectModule, FormsModule, TimelineGridComponent, SchedulePanelComponent],
+  imports: [CommonModule, NgSelectModule, NgbTooltipModule, FormsModule, TimelineGridComponent, SchedulePanelComponent],
   templateUrl: './timeline-shell.component.html',
   styleUrl: './timeline-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +37,8 @@ interface DateColumn {
 })
 export class TimelineShellComponent implements OnInit, OnDestroy {
   @ViewChild(SchedulePanelComponent) schedulePanel!: SchedulePanelComponent;
+  @ViewChild('timelineScrollContainer', { read: ElementRef }) timelineScrollContainer!: ElementRef<HTMLElement>;
+  @ViewChild('timelineHeader', { read: ElementRef }) timelineHeader!: ElementRef<HTMLElement>;
 
   workCenters$!: Observable<WorkCenterDocument[]>;
   workOrders$!: Observable<WorkOrderDocument[]>;
@@ -52,7 +55,8 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
   private workOrdersCache: WorkOrderDocument[] = [];
   private editingWorkOrderId: string | null = null;
 
-  private readonly totalColumns = 60;
+  private totalColumns = 60;
+  private isLoadingMore = false;
   
   readonly zoomLevels = [
     { value: 'day' as ZoomLevel, label: 'Day' },
@@ -90,17 +94,19 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
     
     this.dateColumns$ = combineLatest([
       this.timelineService.getVisibleStartDate(),
-      this.timelineService.getColumnWidth()
+      this.timelineService.getColumnWidth(),
+      this.timelineService.getZoomLevel()
     ]).pipe(
-      map(([startDate, columnWidth]) => this.generateDateColumns(startDate, columnWidth))
+      map(([startDate, columnWidth, zoomLevel]) => this.generateDateColumns(startDate, columnWidth, zoomLevel))
     );
 
     this.currentDayPosition$ = combineLatest([
       this.timelineService.getVisibleStartDate(),
-      this.timelineService.getColumnWidth()
+      this.timelineService.getColumnWidth(),
+      this.timelineService.getZoomLevel()
     ]).pipe(
-      map(([startDate, columnWidth]) => 
-        this.timelineService.getCurrentDayPosition(startDate, columnWidth)
+      map(([startDate, columnWidth, zoomLevel]) => 
+        this.timelineService.getCurrentDayPosition(startDate, columnWidth, zoomLevel)
       )
     );
   }
@@ -112,6 +118,83 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
   onZoomLevelChange(level: ZoomLevel): void {
     this.selectedZoomLevel = level;
     this.timelineService.setZoomLevel(level);
+  }
+
+  scrollToToday(): void {
+    const today = new Date();
+    
+    // Get current values synchronously
+    let currentStartDate!: Date;
+    let currentColumnWidth!: number;
+    let currentZoomLevel!: ZoomLevel;
+    
+    this.visibleStartDate$.subscribe(date => currentStartDate = date).unsubscribe();
+    this.columnWidth$.subscribe(width => currentColumnWidth = width).unsubscribe();
+    this.currentZoomLevel$.subscribe(level => currentZoomLevel = level).unsubscribe();
+    
+    // Calculate today's position in pixels (zoom-aware)
+    const todayPosition = this.timelineService.dateToPosition(today, currentStartDate, currentColumnWidth, currentZoomLevel);
+    
+    // Scroll the timeline container to center today's position
+    setTimeout(() => {
+      if (this.timelineScrollContainer && this.timelineScrollContainer.nativeElement) {
+        const container = this.timelineScrollContainer.nativeElement;
+        const containerWidth = container.clientWidth;
+        
+        // Center today's date in the viewport
+        const scrollPosition = todayPosition - (containerWidth / 2);
+        
+        // Smooth scroll to position
+        container.scrollTo({
+          left: Math.max(0, scrollPosition),
+          behavior: 'smooth'
+        });
+      }
+    }, 0);
+  }
+
+  onTimelineScroll(event: Event): void {
+    const container = event.target as HTMLElement;
+    const scrollLeft = container.scrollLeft;
+    const scrollWidth = container.scrollWidth;
+    const clientWidth = container.clientWidth;
+    
+    // Sync header scroll with grid scroll
+    if (this.timelineHeader && this.timelineHeader.nativeElement) {
+      this.timelineHeader.nativeElement.scrollLeft = scrollLeft;
+    }
+    
+    // Load more columns when scrolling near the end (within 500px)
+    if (scrollWidth - (scrollLeft + clientWidth) < 500 && !this.isLoadingMore) {
+      this.loadMoreColumns();
+    }
+  }
+
+  private loadMoreColumns(): void {
+    this.isLoadingMore = true;
+    
+    // Add 30 more columns
+    this.totalColumns += 30;
+    
+    // Trigger recalculation
+    this.totalWidth$ = this.columnWidth$.pipe(
+      map(columnWidth => this.totalColumns * columnWidth)
+    );
+    
+    this.dateColumns$ = combineLatest([
+      this.timelineService.getVisibleStartDate(),
+      this.timelineService.getColumnWidth(),
+      this.timelineService.getZoomLevel()
+    ]).pipe(
+      map(([startDate, columnWidth, zoomLevel]) => this.generateDateColumns(startDate, columnWidth, zoomLevel))
+    );
+    
+    this.cdr.markForCheck();
+    
+    // Reset loading flag after a short delay
+    setTimeout(() => {
+      this.isLoadingMore = false;
+    }, 300);
   }
 
   onGridCellClicked(event: GridCellClickEvent): void {
@@ -240,7 +323,7 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
     this.editingWorkOrderId = null;
   }
 
-  private generateDateColumns(startDate: Date, columnWidth: number): DateColumn[] {
+  private generateDateColumns(startDate: Date, columnWidth: number, zoomLevel: ZoomLevel): DateColumn[] {
     const columns: DateColumn[] = [];
     const today = new Date();
     const currentMonth = today.getMonth();
@@ -249,7 +332,19 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
     
     for (let i = 0; i < this.totalColumns; i++) {
       const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
+      
+      // Increment date based on zoom level
+      switch (zoomLevel) {
+        case 'day':
+          date.setDate(date.getDate() + i);
+          break;
+        case 'week':
+          date.setDate(date.getDate() + (i * 7));
+          break;
+        case 'month':
+          date.setMonth(date.getMonth() + i);
+          break;
+      }
       
       // Show badge only on the first occurrence of the current month
       const isCurrentMonth = !currentMonthBadgeShown && 
@@ -262,7 +357,7 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
       
       columns.push({
         date,
-        label: this.formatDateLabel(date),
+        label: this.formatDateLabel(date, zoomLevel),
         position: i * columnWidth,
         isCurrentMonth
       });
@@ -271,9 +366,21 @@ export class TimelineShellComponent implements OnInit, OnDestroy {
     return columns;
   }
 
-  private formatDateLabel(date: Date): string {
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
-    const day = date.getDate();
-    return `${month} ${day}`;
+  private formatDateLabel(date: Date, zoomLevel: ZoomLevel): string {
+    switch (zoomLevel) {
+      case 'day':
+        const month = date.toLocaleDateString('en-US', { month: 'short' });
+        const day = date.getDate();
+        return `${month} ${day}`;
+      case 'week':
+        const weekStart = new Date(date);
+        const weekEnd = new Date(date);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      case 'month':
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      default:
+        return '';
+    }
   }
 }

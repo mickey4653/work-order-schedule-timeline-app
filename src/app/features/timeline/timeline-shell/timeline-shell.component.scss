@@ -41,9 +41,39 @@
   border-radius: 12px;
   overflow: visible;
   position: relative;
-   box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 
+  box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 
               0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 
               0 4.5px 5px -1px rgba(216, 220, 235, 1);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.today-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(86, 89, 255, 1);
+  color: #fff;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(86, 89, 255, 0.2);
+  
+  &:hover {
+    background-color: rgba(62, 64, 219, 1);
+    box-shadow: 0 4px 8px rgba(86, 89, 255, 0.3);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .zoom-label {
@@ -197,7 +227,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
 }
 
@@ -303,7 +333,7 @@
   font-size: 14px;
   font-weight: 400;
   white-space: nowrap;
-  z-index: 6;
+  z-index: 25;
   pointer-events: none;
   margin-top: 4px;
 }
@@ -383,7 +413,7 @@
     background-color: rgba(255, 255, 255, 1) !important;
     border: none !important;
     margin-top: 8px !important;
-    left: -90px;
+    left: -80px;
     .ng-dropdown-panel-items {
       overflow-y: visible !important;
       
