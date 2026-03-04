@@ -6,16 +6,17 @@ An interactive timeline component for managing work orders across multiple work 
 
 - **Interactive Timeline Grid**: Visualize work orders across multiple work centers with horizontal scrolling
 - **Multiple Zoom Levels**: Switch between Day, Week, and Month views with intelligent column scaling
-- **Click-to-Create**: Click on empty timeline areas to create new work orders with "Click to add dates" tooltip
+- **Click-to-Create**: Click on empty timeline areas to create new work orders with native browser tooltip
 - **Edit & Delete**: Manage existing work orders via three-dot action menu
 - **Overlap Detection**: Prevents scheduling conflicts on the same work center
 - **Status Management**: Track work orders with 4 status types (Open, In Progress, Complete, Blocked)
 - **Vertical Grid Lines**: Clean visual separation for date columns
 - **Current Day Indicator**: Visual marker showing today's date on the timeline (zoom-aware positioning)
+- **Current Month Badge**: Prominent badge overlay that appears above work orders at current month position
 - **Responsive Design**: Horizontal scrolling for timeline, fixed left panel for work centers
-- **Work Order Tooltips**: Hover over work order bars to see detailed information (name, status, date range)
+- **Work Order Tooltips**: Hover over work order bars to see detailed information with custom styling (name, status, date range)
 - **"Today" Button**: Quick navigation to scroll timeline and center on current day (works across all zoom levels)
-- **Infinite Horizontal Scroll**: Timeline dynamically loads more date columns as you scroll
+- **Infinite Horizontal Scroll**: Timeline dynamically loads 30 more date columns as you scroll near the end
 
 ## Tech Stack
 
@@ -32,12 +33,15 @@ An interactive timeline component for managing work orders across multiple work 
 
 - **Dropdowns**: ng-select library used for timescale and status dropdowns with custom styling to match design specifications
 - **Date Inputs**: ngb-datepicker from ng-bootstrap provides calendar functionality with custom styling
-- **Tooltips**: ngb-tooltip displays "Click to add dates" on empty cells and work order details (name, status, dates) on work order bars
+- **Tooltips**: 
+  - Work order bars use ngb-tooltip with custom styling (background color, shadows, border radius)
+  - Empty timeline areas use native browser tooltip for "Click to add dates" message
 - **Zoom Levels**: Day view shows individual days, Week view shows 7-day periods, Month view shows monthly periods with intelligent column scaling
 - **Position Calculations**: All timeline positioning is zoom-aware, ensuring accurate placement of work orders and current day indicator across all zoom levels
+- **Z-Index Hierarchy**: Current month badge (z-index: 25) appears above work orders (z-index: 10-20), while timeline indicator line (z-index: 5) appears behind work orders
 - **Change Detection**: OnPush strategy used throughout for optimal performance
-- **Infinite Scroll**: Timeline dynamically expands by 30 columns when scrolling near the end
-- **Navigation**: "Today" button centers the timeline on the current day with zoom-aware positioning
+- **Infinite Scroll**: Timeline dynamically expands by 30 columns when scrolling within 500px of the end
+- **Navigation**: "Today" button centers the timeline on the current day with smooth scrolling and zoom-aware positioning
 
 ## Project Structure
 
@@ -152,11 +156,11 @@ A comprehensive testing guide is available in `docs/TESTING_GUIDE.md` covering:
 
 - localStorage persistence for work orders
 - Drag-and-drop to reschedule work orders
-- Infinite horizontal scroll (dynamic date loading)
-- "Jump to Today" button
-- Keyboard shortcuts
+- Custom styled tooltip for empty timeline areas (currently uses native browser tooltip)
+- Keyboard shortcuts for navigation and actions
 - Export to PDF/Excel
 - Multi-select and bulk operations
+- Undo/redo functionality
 
 ## License
 
